@@ -4,8 +4,8 @@ from time import sleep
 
 
 class Table:
-    def __init__(self):
-        self.number = 1
+    def __init__(self, number):
+        self.number = number
         self.is_busy = False
 
     def set_busy(self):
@@ -17,9 +17,8 @@ class Table:
 
 class Cafe:
     def __init__(self, tables):
-        self.queue = queue
+        self.queue = queue.Queue()  
         self.tables = tables
-        self.number = 1
 
     def customer_arrival(self):
         customer_number = 1
@@ -34,9 +33,8 @@ class Cafe:
         for table in self.tables:
             if not table.is_busy:
                 table.set_busy()
-                print(f'Посетитель номер {customer_number} сел за стол {self.number}')
-                self.number += 1
-                sleep(5)
+                print(f'Посетитель номер {customer_number} сел за стол {table.number}')
+                sleep(5)  
                 print(f'Посетитель номер {customer_number} покушал и ушёл')
                 table.set_free()
                 self.check_queue()
@@ -61,17 +59,15 @@ class Customer(Thread):
         self.cafe.serve_customer(self.num)
 
 
-queue = queue.Queue()
+# Создаем столы
+tables = [Table(i + 1) for i in range(3)]
 
-table1 = Table()
-table2 = Table()
-table3 = Table()
-tables = [table1, table2, table3]
-
+# Создаем кафе
 cafe = Cafe(tables)
 
-
+# Запускаем поток прибытия посетителей
 customer_arrival_thread = Thread(target=cafe.customer_arrival)
 customer_arrival_thread.start()
 
+# Ждем завершения потока
 customer_arrival_thread.join()
